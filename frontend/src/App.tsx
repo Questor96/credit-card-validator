@@ -8,8 +8,26 @@ import {CardRequestBody, CardResponseBody} from "common"
 function App() {
   // initialize state variables
   const cardResponseBody: CardResponseBody = {response: false};
-  const [cardNum, setCardNum] = useState("Card Number");
+  const [cardNum, setCardNum] = useState("");
   const [response, setResponse] = useState<CardResponseBody>(cardResponseBody);
+  const [errMsg, setErrMsg] = useState("");
+  const [resultDisplay, setResultDisplay] = useState("");
+
+  // emoji pointers, for reference
+  const check: string = "0x2705"
+  const cross: string = "0x274C"
+  const warning: string = "0x26A0"
+
+  // handle visual updates for valid response
+  // invalid responses left to individual handlers
+  async function updateResultDisplay(body: CardResponseBody) {
+    setErrMsg("")
+    if (body.response) {
+      setResultDisplay(check)
+    } else {
+      setResultDisplay(cross)
+    }
+  };
 
   // Better to use generic typing if we were validating other response types as well
   // Leaving as single-use function for now
@@ -17,15 +35,21 @@ function App() {
     let body = plainToClass(CardResponseBody, resJson as Object);
     let validationErrors = await validate(body);
     if (validationErrors.length > 0) {
-      setResponse({response: false});
+      setResultDisplay(warning)
+      setErrMsg("Received an invalid response from server")
     } else {
       setResponse(body);
+      updateResultDisplay(body);
     }
   };
 
   async function fetchCardValidation() {
     const cardRequestBody: CardRequestBody = new CardRequestBody(+cardNum);
-
+    const validationErrors = await validate(cardRequestBody)
+    if (validationErrors.length > 0) {
+      setResultDisplay(warning)
+      setErrMsg("Please enter a positive integer")
+    }
     try {
       const response = await fetch(
         'http://localhost:8080/api/validate-card',
@@ -38,40 +62,33 @@ function App() {
       if (response.status === 200) {
           response.json().then(handleCardValidationApiResponse);
       } else {
-          setResponse({response: false})
+          setResultDisplay(warning)
+          setErrMsg("Server denied request")
       }
     } catch (e) {
-      setResponse({response: false})
+      setResultDisplay(warning)
+      setErrMsg("Failed to fetch from API")
     }
   }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <label>Name</label><br/>
-            <input
-              id="name"
-              type="text"
-              value={cardNum} 
-              onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
-                setCardNum(changeEvent.target.value)
-            }}/>
-            <br/><br/>
-            <button onClick={() => fetchCardValidation()}>Call API</button>
-            <br/><br/>
-            <textarea readOnly={true} style={{height: "200px"}} value={String(response.response)}></textarea>
+      <label>Credit Card Number</label>
+      <br/>
+      <input
+        type="text"
+        name="number"
+        value={cardNum}
+        onChange={(changeEvent: ChangeEvent<HTMLInputElement>) => {
+          setCardNum(changeEvent.target.value)
+      }}/>
+      <button onClick={() => fetchCardValidation()}>Check If Valid</button>
+      <br/>
+      <div className="resultDisplayEmoji">
+        {String.fromCodePoint(+resultDisplay)}
+      </div>
+      <div>
+        {errMsg}
+      </div>
     </div>
   );
 }
