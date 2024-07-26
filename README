@@ -1,1 +1,7 @@
-asdf
+INSTALL INSTRUCTIONS:
+From root directory, `npm run install-and-build-all` to install all dependencies and create build files
+
+TO USE:
+1) In terminal, from backend directory, `npm run start` to create backend server instance
+2) In separate terminal, from frontend directory, `npm run start` to create frontend and open page
+(these could be bundled into single process start using webpack, intentionally kept separate for this project)

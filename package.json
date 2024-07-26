@@ -1,5 +1,11 @@
 {
     "name": "credit-card-validator",
     "private": true,
-    "workspaces": ["common"]
+    "workspaces": ["common"],
+    "scripts": {
+        "install-and-build-common": "cd common && npm install && npm run build && cd ..",
+        "install-and-build-frontend": "cd frontend && npm install && npm run build && cd ..",
+        "install-and-build-backend": "cd backend && npm install && npm run build && cd ..",
+        "install-and-build-all": "npm run install-and-build-common && npm run install-and-build-frontend && npm run install-and-build-backend"
+    }
 }
