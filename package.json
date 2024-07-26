@@ -1,0 +1,5 @@
+{
+    "name": "credit-card-validator",
+    "private": true,
+    "workspaces": ["common"]
+}
