@@ -1,8 +1,9 @@
-import {IsInt, IsBoolean} from "class-validator";
+import {IsInt, IsBoolean, IsPositive} from "class-validator";
 
 // request and response classes
 export class CardRequestBody {
     @IsInt()
+    @IsPositive()
     cardNum: number;
 
     constructor(cardNum: number) {
